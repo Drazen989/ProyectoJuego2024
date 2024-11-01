@@ -5,35 +5,38 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Paddle {
-    private int x = 20;
-    private int y = 20;
-    private int width = 100;
-    private int height = 10;
-    
-    public Paddle(int x, int y, int ancho, int alto) {
-    	this.x = x;
-    	this.y= y;
-    	width = ancho;
-    	height = alto;
-    }
-     
-    public int getX() {return x;}
-	public int getY() {return y;}
-	public int getWidth() {return width;}
-	public int getHeight() {return height;}
+public class Paddle extends GameObject {
+    private int speed;
+    private Color color;
 
-	public void draw(ShapeRenderer shape){
-        shape.setColor(Color.BLUE);
-        int x2 = x; //= Gdx.input.getX();
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) x2 =x-15;
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) x2=x+15; 
-       // y = Gdx.graphics.getHeight() - Gdx.input.getY(); 
-        if (x2 > 0 && x2+width < Gdx.graphics.getWidth()) {
-            x = x2;
-        }
+    public Paddle(int x, int y, int width, int height, int speed) {
+        super(x, y, width, height);
+        this.speed = speed;
+        this.color = Color.BLUE;  // Color inicial de la plataforma
+    }
+
+    @Override
+    public void draw(ShapeRenderer shape) {
+        shape.setColor(color);
         shape.rect(x, y, width, height);
     }
-    
-    
+
+    @Override
+    public void update() {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            x -= speed;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            x += speed;
+        }
+
+        // Evitar que la barra se salga de la pantalla
+        if (x < 0) x = 0;
+        if (x + width > Gdx.graphics.getWidth()) x = Gdx.graphics.getWidth() - width;
+    }
+
+
+    public void setColor(Color color) {
+        this.color = color;  // Permitir cambiar el color (por ejemplo, en colisiones)
+    }
 }

@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class BlockBreakerGame extends ApplicationAdapter {
     private OrthographicCamera camera;
@@ -30,7 +31,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
     private PauseMenu pauseMenu;  // Instancia del menú de pausa
 
-    // Variables para el parpadeo del texto
+    // Variables para el parpadeo del texto en el menú
     private float timeElapsed = 0f;  // Tiempo transcurrido
     private boolean showText = true;  // Visibilidad del texto
 
@@ -42,58 +43,41 @@ public class BlockBreakerGame extends ApplicationAdapter {
     @Override
     public void render() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        camera.update();  // Asegúrate de actualizar la cámara antes de dibujar
+        camera.update();
 
         if (enMenu) {
-            // Mostrar el menú inicial
             mostrarMenu();
         } else if (enPausa) {
-            // Mostrar el menú de pausa usando la clase PauseMenu
-            pauseMenu.showPauseMenu();
-            int opcion = pauseMenu.handleInput();
-            if (opcion == 1) {
-                enPausa = false;  // Volver al juego
-            } else if (opcion == 2) {
-                reiniciarAlMenu();  // Volver al menú principal y reiniciar el juego
-            } else if (opcion == 3) {
-                Gdx.app.exit();  // Salir del juego
-            }
+            mostrarPausa();
         } else {
-            // Lógica normal del juego (cuando el menú ha terminado)
             if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-                enPausa = true;  // Pausar el juego si se presiona ESC
+                enPausa = true;
             }
+
             actualizarJuego();
+            batch.begin();
+            //pad.draw(batch);
+            batch.end();
         }
     }
 
     private void mostrarMenu() {
-        // Actualizar el tiempo transcurrido para el parpadeo
         timeElapsed += Gdx.graphics.getDeltaTime();
-
-        // Alternar la visibilidad del texto cada 0.5 segundos
         if (timeElapsed >= 0.5f) {
-            showText = !showText;  // Cambiar entre visible e invisible
-            timeElapsed = 0f;  // Reiniciar el tiempo
+            showText = !showText;
+            timeElapsed = 0f;
         }
 
-        // Mostrar el menú principal como antes
-        batch.setProjectionMatrix(camera.combined);  // Usar la proyección de la cámara
+        batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        // Redimensionar la imagen dinámicamente según el tamaño de la ventana
-        float imgWidth = Gdx.graphics.getWidth() * 0.6f;  // Ancho al 60% de la ventana
-        float imgHeight = img.getHeight() * (imgWidth / img.getWidth());  // Mantener la relación de aspecto
+        float imgWidth = Gdx.graphics.getWidth() * 0.6f;
+        float imgHeight = img.getHeight() * (imgWidth / img.getWidth());
 
-        // Dibujar la imagen centrada
         batch.draw(img, Gdx.graphics.getWidth() / 2 - imgWidth / 2, Gdx.graphics.getHeight() - imgHeight - 50, imgWidth, imgHeight);
-
-        // Cambiar el tamaño del texto si es necesario
         font.getData().setScale(1.5f);
-        font.setColor(1, 1, 1, 1);  // Color blanco
+        font.setColor(1, 1, 1, 1);
 
-        // Dibujar los textos si están visibles (para el parpadeo)
         if (showText) {
             font.draw(batch, "1. Inicio de Juego", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 150);
             font.draw(batch, "2. Salir", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 200);
@@ -101,58 +85,88 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
         batch.end();
 
-        // Lógica para seleccionar opciones del menú
         if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-            enMenu = false;  // Iniciar el juego
+            enMenu = false;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-            Gdx.app.exit();  // Salir del juego
+            Gdx.app.exit();
+        }
+    }
+
+    private void mostrarPausa() {
+        pauseMenu.showPauseMenu();
+        int opcion = pauseMenu.handleInput();
+        if (opcion == 1) {
+            enPausa = false;
+        } else if (opcion == 2) {
+            reiniciarAlMenu();
+        } else if (opcion == 3) {
+            Gdx.app.exit();
         }
     }
 
     private void actualizarJuego() {
-        shape.setProjectionMatrix(camera.combined);  // Proyección con la cámara
+        shape.setProjectionMatrix(camera.combined);
         shape.begin(ShapeRenderer.ShapeType.Filled);
         pad.draw(shape);
+        pad.update();
+
         if (ball.estaQuieto()) {
             ball.setXY(pad.getX() + pad.getWidth() / 2 - 5, pad.getY() + pad.getHeight() + 11);
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) ball.setEstaQuieto(false);
-        } else ball.update();
+        } else {
+            ball.update();
+        }
+
+        ball.checkCollision(pad);
+
         if (ball.getY() < 0) {
             vidas--;
-            ball = new PingBall(pad.getX() + pad.getWidth() / 2 - 5, pad.getY() + pad.getHeight() + 11, 10, 5, 7, true);
+            reiniciarBola();
         }
+
         if (vidas <= 0) {
-            vidas = 3;
-            nivel = 1;
-            crearBloques(2 + nivel);
+            reiniciarJuego();
         }
-        if (blocks.size() == 0) {
-            nivel++;
-            crearBloques(2 + nivel);
-            ball = new PingBall(pad.getX() + pad.getWidth() / 2 - 5, pad.getY() + pad.getHeight() + 11, 10, 5, 7, true);
+
+        if (blocks.isEmpty()) {
+            avanzarNivel();
         }
-        for (Block b : blocks) {
+
+        for (Iterator<Block> iter = blocks.iterator(); iter.hasNext(); ) {
+            Block b = iter.next();
             b.draw(shape);
             ball.checkCollision(b);
-        }
-        for (int i = 0; i < blocks.size(); i++) {
-            Block b = blocks.get(i);
             if (b.destroyed) {
                 puntaje++;
-                blocks.remove(b);
-                i--;
+                iter.remove();
             }
         }
-        ball.checkCollision(pad);
+
         ball.draw(shape);
         shape.end();
         dibujaTextos();
     }
 
+    private void reiniciarBola() {
+        ball = new PingBall(pad.getX() + pad.getWidth() / 2 - 5, pad.getY() + pad.getHeight() + 11, 10, 5, 7, true);
+    }
+
+    private void reiniciarJuego() {
+        vidas = 3;
+        nivel = 1;
+        crearBloques(2 + nivel);
+        reiniciarBola();
+    }
+
+    private void avanzarNivel() {
+        nivel++;
+        crearBloques(2 + nivel);
+        reiniciarBola();
+    }
+
     @Override
     public void resize(int width, int height) {
-        // Ajustar la cámara cuando se cambia el tamaño de la ventana
         camera.setToOrtho(false, width, height);
     }
 
@@ -169,7 +183,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         }
     }
 
-    public void dibujaTextos() {
+    private void dibujaTextos() {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
@@ -183,10 +197,36 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch.dispose();
         font.dispose();
         shape.dispose();
-        img.dispose();  // Liberar la textura del menú
+        img.dispose();
     }
 
-    // Clase interna PauseMenu
+    private void reiniciarAlMenu() {
+        enMenu = true;
+        enPausa = false;
+        vidas = 3;
+        puntaje = 0;
+        nivel = 1;
+        crearBloques(2 + nivel);
+    }
+
+    private void inicializarJuego() {
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, 800, 480);
+        batch = new SpriteBatch();
+        font = new BitmapFont();
+        font.getData().setScale(3, 2);
+        nivel = 1;
+
+        img = new Texture(Gdx.files.internal("image.png"));
+        crearBloques(2 + nivel);
+        shape = new ShapeRenderer();
+        ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 10, 5, 7, true);
+        pad = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10, 10);
+        vidas = 3;
+        puntaje = 0;
+        pauseMenu = new PauseMenu(batch, font);
+    }
+
     class PauseMenu {
         private SpriteBatch batch;
         private BitmapFont font;
@@ -197,65 +237,26 @@ public class BlockBreakerGame extends ApplicationAdapter {
         }
 
         public void showPauseMenu() {
-            // Mostrar el menú de pausa
             batch.begin();
-
-            // Dibujar las opciones de pausa
             font.getData().setScale(1.5f);
-            font.setColor(1, 1, 1, 1);  // Color blanco
+            font.setColor(1, 1, 1, 1);
             font.draw(batch, "1. Volver al Juego", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 100);
             font.draw(batch, "2. Volver al Menu", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 150);
             font.draw(batch, "3. Salir", Gdx.graphics.getWidth() / 2 - 100, Gdx.graphics.getHeight() / 2 - 200);
-
             batch.end();
         }
 
         public int handleInput() {
-            // Lógica para seleccionar opciones del menú de pausa
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
-                return 1;  // Volver al juego
+                return 1;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
-                return 2;  // Volver al menú principal
+                return 2;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
-                return 3;  // Salir del juego
+                return 3;
             }
-            return 0;  // No se ha seleccionado nada
+            return 0;
         }
-    }
-
-    // Método para reiniciar el juego y volver al menú
-    private void reiniciarAlMenu() {
-        enMenu = true;
-        enPausa = false;
-        vidas = 3;
-        puntaje = 0;
-        nivel = 1;
-        crearBloques(2 + nivel);  // Reiniciar bloques y variables del juego
-    }
-
-    // Método para inicializar el estado del juego al crear
-    private void inicializarJuego() {
-        camera = new OrthographicCamera();
-        camera.setToOrtho(false, 800, 480);
-        batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.getData().setScale(3, 2);
-        nivel = 1;
-
-        // Cargar la imagen del menú
-        img = new Texture(Gdx.files.internal("image.png"));
-
-        // Crear otros objetos del juego
-        crearBloques(2 + nivel);
-        shape = new ShapeRenderer();
-        ball = new PingBall(Gdx.graphics.getWidth() / 2 - 10, 41, 10, 5, 7, true);
-        pad = new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
-        vidas = 3;
-        puntaje = 0;
-
-        // Crear el menú de pausa
-        pauseMenu = new PauseMenu(batch, font);
     }
 }
