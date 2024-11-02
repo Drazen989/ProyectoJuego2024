@@ -13,7 +13,7 @@ public class PingBall extends GameObject {
         super(x, y, size * 2, size * 2);  // Ajustamos el tamaño de la pelota
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
-        estaQuieto = iniciaQuieto;
+        this.estaQuieto = iniciaQuieto;
     }
 
     public boolean estaQuieto() { return estaQuieto; }
@@ -53,7 +53,12 @@ public class PingBall extends GameObject {
     public void checkCollision(Block block) {
         if (collidesWith(block)) {
             ySpeed = -ySpeed;
-            block.destroyed = true;
+            block.setDestroyed(true);  // Usa el método setDestroyed
         }
+    }
+
+    @Override
+    public boolean isStill() {
+        return estaQuieto;  // Implementación de isStill
     }
 }

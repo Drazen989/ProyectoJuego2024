@@ -31,7 +31,6 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
     private PauseMenu pauseMenu;  // Instancia del menú de pausa
 
-    // Variables para el parpadeo del texto en el menú
     private float timeElapsed = 0f;  // Tiempo transcurrido
     private boolean showText = true;  // Visibilidad del texto
 
@@ -113,7 +112,9 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
         if (ball.estaQuieto()) {
             ball.setXY(pad.getX() + pad.getWidth() / 2 - 5, pad.getY() + pad.getHeight() + 11);
-            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) ball.setEstaQuieto(false);
+            if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+                ball.setEstaQuieto(false); // Cambia a setEstaQuieto
+            }
         } else {
             ball.update();
         }
@@ -137,7 +138,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
             Block b = iter.next();
             b.draw(shape);
             ball.checkCollision(b);
-            if (b.destroyed) {
+            if (b.isDestroyed()) { // Asegúrate de que hay un método isDestroyed en Block
                 puntaje++;
                 iter.remove();
             }
