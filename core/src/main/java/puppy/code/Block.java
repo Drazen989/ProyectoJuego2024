@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import java.util.Random;
 
-public class Block extends GameObject {
+public class Block extends GameObject implements Renderable {
     private Color cc;
     private boolean destroyed;
 
@@ -29,11 +29,11 @@ public class Block extends GameObject {
     }
 
     public boolean isDestroyed() {
-        return destroyed;  // Método para verificar si el bloque está destruido
+        return destroyed;  // Mtodo para verificar si el bloque está destruido
     }
 
     public void setDestroyed(boolean destroyed) {
-        this.destroyed = destroyed;  // Método para cambiar el estado de destruido
+        this.destroyed = destroyed;  // Mtodo para cambiar el estado de destruido
     }
 
     @Override

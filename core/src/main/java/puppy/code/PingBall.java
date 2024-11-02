@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class PingBall extends GameObject {
+public class PingBall extends GameObject implements Renderable {
     private int xSpeed, ySpeed;
     private Color color = Color.WHITE;
     private boolean estaQuieto;
@@ -53,7 +53,7 @@ public class PingBall extends GameObject {
     public void checkCollision(Block block) {
         if (collidesWith(block)) {
             ySpeed = -ySpeed;
-            block.setDestroyed(true);  // Usa el método setDestroyed
+            block.setDestroyed(true);  // Usa el mtodo setDestroyed
         }
     }
 

@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Paddle extends GameObject {
+public class Paddle extends GameObject implements Renderable {
     private int speed;
     private Color color;
     private boolean moving;  // Nueva variable para rastrear el movimiento
