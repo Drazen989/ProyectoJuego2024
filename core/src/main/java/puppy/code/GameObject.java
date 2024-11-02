@@ -19,4 +19,6 @@ public abstract class GameObject {
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
+
+    public abstract boolean isStill();
 }
