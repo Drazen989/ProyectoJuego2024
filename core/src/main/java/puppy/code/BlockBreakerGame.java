@@ -101,9 +101,19 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
-        // Dibuja la imagen de Game Over
-        float imgWidth = Gdx.graphics.getWidth() * 0.8f;
-        float imgHeight = gameOverImage.getHeight() * (imgWidth / gameOverImage.getWidth());
+        // Configuración de la imagen de fondo en el menú
+        float screenRatio = (float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
+        float imgRatio = (float) img.getWidth() / img.getHeight();
+        float imgWidth, imgHeight;
+
+        if (screenRatio > imgRatio) {
+            imgWidth = Gdx.graphics.getWidth();
+            imgHeight = imgWidth / imgRatio;
+        } else {
+            imgHeight = Gdx.graphics.getHeight();
+            imgWidth = imgHeight * imgRatio;
+        }
+
         batch.draw(gameOverImage, (Gdx.graphics.getWidth() - imgWidth) / 2, (Gdx.graphics.getHeight() - imgHeight) / 2, imgWidth, imgHeight);
 
         font.getData().setScale(1.5f);
