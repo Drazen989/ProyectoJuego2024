@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.audio.Music;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,7 +28,11 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private int puntaje;
     private int nivel;
 
+
     private Texture img;  // Imagen del menú principal
+    private Music menuMusic;
+    private Music gameMusic;
+
 
     private GameStateManager gameStateManager;
     private GameInitializer gameInitializer;
@@ -52,6 +57,14 @@ public class BlockBreakerGame extends ApplicationAdapter {
         pauseMenu = new PauseMenu(batch, font);
         img = new Texture(Gdx.files.internal("image.png"));
 
+
+        menuMusic = Gdx.audio.newMusic(Gdx.files.internal("Start Demo - Arkanoid.mp3"));
+        menuMusic.setLooping(true); // Reproduce la música en bucle
+        menuMusic.play(); // Inicia la música del menú
+
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Music Arkanoid Win32 - Track1.mp3"));
+        gameMusic.setLooping(true);
+
         // Inicializa objetos del juego
         blocks = new ArrayList<>();
         reiniciarAlMenu();
@@ -64,6 +77,8 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
         if (gameStateManager.isMenu()) {
             mostrarMenu();
+        } else if (gameStateManager.isInstrucciones()) {
+            mostrarInstrucciones();
         } else if (gameStateManager.isPausa()) {
             mostrarPausa();
         } else if (gameStateManager.isJugando()) {
@@ -73,6 +88,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
             actualizarJuego();
         }
     }
+
 
     private void mostrarMenu() {
         timeElapsed += Gdx.graphics.getDeltaTime();
@@ -84,6 +100,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
 
+        // Configuración de la imagen de fondo en el menú
         float screenRatio = (float) Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
         float imgRatio = (float) img.getWidth() / img.getHeight();
         float imgWidth, imgHeight;
@@ -109,12 +126,14 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch.end();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
-            gameStateManager.setState(GameStateManager.GameState.JUGANDO);
+            gameStateManager.setState(GameStateManager.GameState.INSTRUCCIONES);
+            menuMusic.stop(); // Detén la música del menú
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
             Gdx.app.exit();
         }
     }
+
 
     private void mostrarPausa() {
         pauseMenu.showPauseMenu();
@@ -122,6 +141,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         if (opcion == 1) {
             gameStateManager.setState(GameStateManager.GameState.JUGANDO);
         } else if (opcion == 2) {
+            gameMusic.stop(); // Detén la música del juego
             reiniciarAlMenu();
         } else if (opcion == 3) {
             Gdx.app.exit();
@@ -201,6 +221,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         gameInitializer.inicializarBloques(2 + nivel, blocks);
         pad = gameInitializer.crearPaleta();
         reiniciarBola();
+        menuMusic.play();
     }
 
     private void dibujaTextos() {
@@ -223,5 +244,46 @@ public class BlockBreakerGame extends ApplicationAdapter {
         font.dispose();
         shape.dispose();
         img.dispose();
+        if (menuMusic != null) {
+            menuMusic.dispose();
+        }
+        if (gameMusic != null) {
+            gameMusic.dispose();
+        }
     }
+
+    private void mostrarInstrucciones() {
+        timeElapsed += Gdx.graphics.getDeltaTime();
+        if (timeElapsed >= 0.5f) {
+            showText = !showText;
+            timeElapsed = 0f;
+        }
+
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+
+        font.getData().setScale(1.5f);
+        font.setColor(1, 1, 1, 1);
+
+        // Dibujar las instrucciones
+        font.draw(batch, "Para mover la tablita utilice las flechas de izquierda y derecha", Gdx.graphics.getWidth() / 2 - 300, Gdx.graphics.getHeight() / 2 + 50);
+        font.draw(batch, "Para iniciar el juego y mover la pelota aprete ESPACIO", Gdx.graphics.getWidth() / 2 - 300, Gdx.graphics.getHeight() / 2);
+        font.draw(batch, "Para pausar el juego aprete la tecla ESC", Gdx.graphics.getWidth() / 2 - 300, Gdx.graphics.getHeight() / 2 - 50);
+        font.draw(batch, "¡Espero que te encante el juego ^^!", Gdx.graphics.getWidth() / 2 - 200, Gdx.graphics.getHeight() / 2 - 100);
+
+        // Mensaje parpadeante
+        if (showText) {
+            font.draw(batch, "Aprete cualquier letra para comenzar", Gdx.graphics.getWidth() / 2 - 200, Gdx.graphics.getHeight() / 2 - 200);
+        }
+
+        batch.end();
+
+        // Transición al estado JUGANDO
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)) {
+            gameStateManager.setState(GameStateManager.GameState.JUGANDO);
+            menuMusic.stop(); // Detén la música del menú
+            gameMusic.play(); // Inicia la música del juego
+        }
+    }
+
 }
