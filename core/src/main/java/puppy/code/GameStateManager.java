@@ -7,7 +7,8 @@ public class GameStateManager {
         MENU,
         INSTRUCCIONES,
         JUGANDO,
-        PAUSA
+        PAUSA,
+        GAME_OVER
     }
 
     // Variable para almacenar el estado actual
@@ -44,4 +45,9 @@ public class GameStateManager {
     public boolean isPausa() {
         return currentState == GameState.PAUSA;
     }
+
+    public boolean isGameOver() {
+        return currentState == GameState.GAME_OVER;
+    }
+
 }

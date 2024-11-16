@@ -1,6 +1,5 @@
 package puppy.code;
 
-
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -25,14 +24,13 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private ArrayList<Block> blocks;
 
     private int vidas;
-    private int puntaje;
     private int nivel;
 
-
     private Texture img;  // Imagen del menú principal
+    private Texture gameOverImage;
     private Music menuMusic;
     private Music gameMusic;
-
+    private Music gameOverMusic;
 
     private GameStateManager gameStateManager;
     private GameInitializer gameInitializer;
@@ -57,13 +55,15 @@ public class BlockBreakerGame extends ApplicationAdapter {
         pauseMenu = new PauseMenu(batch, font);
         img = new Texture(Gdx.files.internal("image.png"));
 
-
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("Start Demo - Arkanoid.mp3"));
         menuMusic.setLooping(true); // Reproduce la música en bucle
         menuMusic.play(); // Inicia la música del menú
 
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Music Arkanoid Win32 - Track1.mp3"));
         gameMusic.setLooping(true);
+
+        gameOverImage = new Texture(Gdx.files.internal("gameOver.png")); // Imagen Game Over
+        gameOverMusic = Gdx.audio.newMusic(Gdx.files.internal("Game Over - Arkanoid.mp3")); // Música Game Over
 
         // Inicializa objetos del juego
         blocks = new ArrayList<>();
@@ -86,6 +86,50 @@ public class BlockBreakerGame extends ApplicationAdapter {
                 gameStateManager.setState(GameStateManager.GameState.PAUSA);
             }
             actualizarJuego();
+        } else if (gameStateManager.isGameOver()) {
+            mostrarGameOver();
+        }
+    }
+
+    private void mostrarGameOver() {
+        timeElapsed += Gdx.graphics.getDeltaTime();
+        if (timeElapsed >= 0.5f) {
+            showText = !showText;
+            timeElapsed = 0f;
+        }
+
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+
+        // Dibuja la imagen de Game Over
+        float imgWidth = Gdx.graphics.getWidth() * 0.8f;
+        float imgHeight = gameOverImage.getHeight() * (imgWidth / gameOverImage.getWidth());
+        batch.draw(gameOverImage, (Gdx.graphics.getWidth() - imgWidth) / 2, (Gdx.graphics.getHeight() - imgHeight) / 2, imgWidth, imgHeight);
+
+        font.getData().setScale(1.5f);
+        font.setColor(1, 1, 1, 1); // Rojo
+
+        // Opciones de texto
+        font.draw(batch, "Seleccione una opción", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 - 100);
+
+        // Texto parpadeante
+        if (showText) {
+            font.draw(batch, "1. Volver a intentarlo", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 - 150);
+            font.draw(batch, "2. Salir del juego", Gdx.graphics.getWidth() / 2 - 150, Gdx.graphics.getHeight() / 2 - 200);
+        }
+
+        batch.end();
+
+        // Manejo de entrada
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) { // Opción 1: Volver a intentarlo
+            reiniciarJuego();
+            gameStateManager.setState(GameStateManager.GameState.JUGANDO);
+            gameOverMusic.stop();
+            gameMusic.play();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) { // Opción 2: Salir del juego
+            Gdx.app.exit();
         }
     }
 
@@ -134,7 +178,6 @@ public class BlockBreakerGame extends ApplicationAdapter {
         }
     }
 
-
     private void mostrarPausa() {
         pauseMenu.showPauseMenu();
         int opcion = pauseMenu.handleInput();
@@ -172,7 +215,9 @@ public class BlockBreakerGame extends ApplicationAdapter {
         }
 
         if (vidas <= 0) {
-            reiniciarJuego();
+            gameStateManager.setState(GameStateManager.GameState.GAME_OVER);
+            gameMusic.stop();
+            gameOverMusic.play();
         }
 
         if (blocks.isEmpty()) {
@@ -184,7 +229,6 @@ public class BlockBreakerGame extends ApplicationAdapter {
             b.draw(shape);
             ball.checkCollision(b);
             if (b.isDestroyed()) {
-                puntaje++;
                 iter.remove();
             }
         }
@@ -192,7 +236,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         ball.draw(shape);
         shape.end();
 
-        dibujaTextos();
+        dibujaVidas();
     }
 
     private void reiniciarBola() {
@@ -203,6 +247,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         vidas = 3;
         nivel = 1;
         gameInitializer.inicializarBloques(2 + nivel, blocks);
+        pad = gameInitializer.crearPaleta();
         reiniciarBola();
     }
 
@@ -215,7 +260,6 @@ public class BlockBreakerGame extends ApplicationAdapter {
     private void reiniciarAlMenu() {
         gameStateManager.setState(GameStateManager.GameState.MENU);
         vidas = 3;
-        puntaje = 0;
         nivel = 1;
 
         gameInitializer.inicializarBloques(2 + nivel, blocks);
@@ -224,11 +268,10 @@ public class BlockBreakerGame extends ApplicationAdapter {
         menuMusic.play();
     }
 
-    private void dibujaTextos() {
+    private void dibujaVidas() {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-        font.draw(batch, "Puntos: " + puntaje, 10, 25);
         font.draw(batch, "Vidas: " + vidas, Gdx.graphics.getWidth() - 200, 25);
         batch.end();
     }
@@ -249,6 +292,12 @@ public class BlockBreakerGame extends ApplicationAdapter {
         }
         if (gameMusic != null) {
             gameMusic.dispose();
+        }
+        if (gameOverImage != null) {
+            gameOverImage.dispose();
+        }
+        if (gameOverMusic != null) {
+            gameOverMusic.dispose();
         }
     }
 
@@ -285,5 +334,4 @@ public class BlockBreakerGame extends ApplicationAdapter {
             gameMusic.play(); // Inicia la música del juego
         }
     }
-
 }
