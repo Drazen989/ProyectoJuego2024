@@ -30,15 +30,16 @@ public class PauseMenu {
 
     public int handleInput() {
         // Lógica para seleccionar opciones del menú de pausa
-        if (Gdx.input.isKeyPressed(Input.Keys.NUM_1)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
             return 1;  // Volver al juego
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.NUM_2)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
             return 2;  // Volver al menú principal
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.NUM_3)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
             return 3;  // Salir del juego
         }
         return 0;  // No se ha seleccionado nada
     }
+
 }
