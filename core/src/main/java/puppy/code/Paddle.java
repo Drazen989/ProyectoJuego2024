@@ -13,7 +13,7 @@ public class Paddle extends GameObject implements Renderable {
     public Paddle(int x, int y, int width, int height, int speed) {
         super(x, y, width, height);
         this.speed = speed;
-        this.color = Color.BLUE;  // Color inicial de la paleta
+        this.color = Color.PURPLE;  // Color inicial de la paleta
         this.moving = false;      // Inicialmente, no se está moviendo
     }
 
@@ -49,4 +49,21 @@ public class Paddle extends GameObject implements Renderable {
     public void setColor(Color color) {
         this.color = color;  // Permitir cambiar el color (por ejemplo, en colisiones)
     }
+
+    // Mtodo para cambiar dinámicamente el tamaño de la paleta
+    public void setSize(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
+
+    // Mtodo para cambiar dinámicamente la velocidad de la paleta
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    // Mtodos para obtener la velocidad (opcional, por si necesitas acceso en otro lugar)
+    public int getSpeed() {
+        return speed;
+    }
 }
+

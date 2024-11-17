@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
 public class PingBall extends GameObject implements Renderable {
     private int xSpeed, ySpeed;
-    private Color color = Color.WHITE;
+    private Color color = Color.ORANGE;
     private boolean estaQuieto;
 
     public PingBall(int x, int y, int size, int xSpeed, int ySpeed, boolean iniciaQuieto) {
@@ -20,6 +20,20 @@ public class PingBall extends GameObject implements Renderable {
     public void setEstaQuieto(boolean bb) { estaQuieto = bb; }
     public void setXY(int x, int y) { this.x = x; this.y = y; }
 
+    // Métodos para ajustar la velocidad
+    public void setSpeed(int xSpeed, int ySpeed) {
+        this.xSpeed = xSpeed;
+        this.ySpeed = ySpeed;
+    }
+
+    public int getXSpeed() {
+        return xSpeed;
+    }
+
+    public int getYSpeed() {
+        return ySpeed;
+    }
+
     @Override
     public void draw(ShapeRenderer shape) {
         shape.setColor(color);
@@ -31,16 +45,22 @@ public class PingBall extends GameObject implements Renderable {
         if (estaQuieto) return;
         x += xSpeed;
         y += ySpeed;
-        if (x - width / 2 < 0 || x + width / 2 > Gdx.graphics.getWidth()) xSpeed = -xSpeed;
-        if (y + height / 2 > Gdx.graphics.getHeight()) ySpeed = -ySpeed;
+
+        // Detectar colisiones con los bordes de la pantalla
+        if (x - width / 2 < 0 || x + width / 2 > Gdx.graphics.getWidth()) {
+            xSpeed = -xSpeed;
+        }
+        if (y + height / 2 > Gdx.graphics.getHeight()) {
+            ySpeed = -ySpeed;
+        }
     }
 
     public void checkCollision(Paddle paddle) {
         if (collidesWith(paddle)) {
             color = Color.GREEN;
-            ySpeed = -ySpeed;
+            ySpeed = -ySpeed;  // Cambiar dirección en el eje Y
         } else {
-            color = Color.WHITE;
+            color = Color.ORANGE;
         }
     }
 
@@ -52,8 +72,8 @@ public class PingBall extends GameObject implements Renderable {
 
     public void checkCollision(Block block) {
         if (collidesWith(block)) {
-            ySpeed = -ySpeed;
-            block.setDestroyed(true);  // Usa el mtodo setDestroyed
+            ySpeed = -ySpeed;  // Cambiar dirección en el eje Y al chocar con un bloque
+            block.setDestroyed(true);  // Marca el bloque como destruido
         }
     }
 
@@ -62,3 +82,4 @@ public class PingBall extends GameObject implements Renderable {
         return estaQuieto;  // Implementación de isStill
     }
 }
+
