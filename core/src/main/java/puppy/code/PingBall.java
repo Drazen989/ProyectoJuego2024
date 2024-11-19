@@ -9,44 +9,27 @@ public class PingBall extends GameObject implements Renderable {
     private Color color = Color.ORANGE;
     private boolean estaQuieto;
 
-    public PingBall(int x, int y, int size, int xSpeed, int ySpeed, boolean iniciaQuieto) {
-        super(x, y, size * 2, size * 2);  // Ajustamos el tamaño de la pelota
-        this.xSpeed = xSpeed;
-        this.ySpeed = ySpeed;
-        this.estaQuieto = iniciaQuieto;
-    }
-
-    public boolean estaQuieto() { return estaQuieto; }
-    public void setEstaQuieto(boolean bb) { estaQuieto = bb; }
-    public void setXY(int x, int y) { this.x = x; this.y = y; }
-
-    // Métodos para ajustar la velocidad
-    public void setSpeed(int xSpeed, int ySpeed) {
-        this.xSpeed = xSpeed;
-        this.ySpeed = ySpeed;
-    }
-
-    public int getXSpeed() {
-        return xSpeed;
-    }
-
-    public int getYSpeed() {
-        return ySpeed;
+    public PingBall(int x, int y, int size) {
+        super(x, y, size * 2, size * 2);
+        GameConfigManager config = GameConfigManager.getInstance();
+        this.xSpeed = config.getBallXSpeed(); // Obtener velocidad inicial del Singleton
+        this.ySpeed = config.getBallYSpeed();
+        this.estaQuieto = true;
     }
 
     @Override
     public void draw(ShapeRenderer shape) {
         shape.setColor(color);
-        shape.circle(x, y, width / 2);  // Usar width para representar el tamaño de la pelota
+        shape.circle(x, y, width / 2);
     }
 
     @Override
     public void update() {
         if (estaQuieto) return;
+
         x += xSpeed;
         y += ySpeed;
 
-        // Detectar colisiones con los bordes de la pantalla
         if (x - width / 2 < 0 || x + width / 2 > Gdx.graphics.getWidth()) {
             xSpeed = -xSpeed;
         }
@@ -55,31 +38,48 @@ public class PingBall extends GameObject implements Renderable {
         }
     }
 
-    public void checkCollision(Paddle paddle) {
-        if (collidesWith(paddle)) {
-            color = Color.GREEN;
-            ySpeed = -ySpeed;  // Cambiar dirección en el eje Y
-        } else {
-            color = Color.ORANGE;
-        }
+    public void applyConfig() {
+        // Aplicar nueva configuración al cambiar de nivel
+        GameConfigManager config = GameConfigManager.getInstance();
+        this.xSpeed = config.getBallXSpeed();
+        this.ySpeed = config.getBallYSpeed();
+    }
+    public void setXY(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
 
-    private boolean collidesWith(GameObject obj) {
-        boolean intersectaX = (obj.getX() + obj.getWidth() >= x - width / 2) && (obj.getX() <= x + width / 2);
-        boolean intersectaY = (obj.getY() + obj.getHeight() >= y - height / 2) && (obj.getY() <= y + height / 2);
-        return intersectaX && intersectaY;
+    public void setEstaQuieto(boolean estaQuieto) {
+        this.estaQuieto = estaQuieto;
     }
 
-    public void checkCollision(Block block) {
-        if (collidesWith(block)) {
-            ySpeed = -ySpeed;  // Cambiar dirección en el eje Y al chocar con un bloque
-            block.setDestroyed(true);  // Marca el bloque como destruido
+    public boolean estaQuieto() {
+        return estaQuieto;
+    }
+
+    // Mtodo para verificar colisiones
+    public void checkCollision(GameObject other) {
+        // Lógica básica de colisión usando bounding boxes
+        if (x < other.getX() + other.getWidth() &&
+            x + width > other.getX() &&
+            y < other.getY() + other.getHeight() &&
+            y + height > other.getY()) {
+
+            // Verificar si el objeto es un bloque
+            if (other instanceof Block) {
+                Block block = (Block) other;
+                block.setDestroyed(true); // Marcar el bloque como destruido
+            }
+
+            // Invertir la dirección vertical al colisionar
+            ySpeed = -ySpeed;
         }
     }
 
     @Override
     public boolean isStill() {
-        return estaQuieto;  // Implementación de isStill
+        return estaQuieto; // Retorna true si la pelota está quieta
     }
-}
 
+
+}

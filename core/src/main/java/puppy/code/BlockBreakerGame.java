@@ -223,11 +223,14 @@ public class BlockBreakerGame extends ApplicationAdapter {
         shape.setProjectionMatrix(camera.combined);
         shape.begin(ShapeRenderer.ShapeType.Filled);
 
+        // Dibujar y actualizar la paleta
         pad.draw(shape);
         pad.update();
 
+        // Movimiento de la pelota
         if (ball.estaQuieto()) {
-            ball.setXY(pad.getX() + pad.getWidth() / 2 - 5, pad.getY() + pad.getHeight() + 11);
+            // Colocar la pelota sobre la paleta si está quieta
+            ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + 5);
             if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
                 ball.setEstaQuieto(false);
             }
@@ -235,24 +238,8 @@ public class BlockBreakerGame extends ApplicationAdapter {
             ball.update();
         }
 
+        // Verificar colisiones
         ball.checkCollision(pad);
-
-        if (ball.getY() < 0) {
-            vidas--;
-            reiniciarBola();
-        }
-
-        if (vidas <= 0) {
-            gameStateManager.setState(GameStateManager.GameState.GAME_OVER);
-            gameMusic.stop();
-            gameOverMusic.play();
-        }
-
-        if (blocks.isEmpty()) {
-            avanzarNivel(); // Progresar al siguiente nivel o mostrar pantalla de victoria
-        }
-
-
 
         for (Iterator<Block> iter = blocks.iterator(); iter.hasNext(); ) {
             Block b = iter.next();
@@ -263,11 +250,31 @@ public class BlockBreakerGame extends ApplicationAdapter {
             }
         }
 
+        // Si la pelota cae fuera de la pantalla
+        if (ball.getY() < 0) {
+            vidas--;
+            reiniciarBola();
+        }
+
+        // Manejar estado de juego terminado
+        if (vidas <= 0) {
+            gameStateManager.setState(GameStateManager.GameState.GAME_OVER);
+            gameMusic.stop();
+            gameOverMusic.play();
+        }
+
+        // Si no quedan bloques, avanzar nivel
+        if (blocks.isEmpty()) {
+            avanzarNivel();
+        }
+
         ball.draw(shape);
         shape.end();
 
         dibujaVidas();
     }
+
+
 
     private void reiniciarBola() {
         ball = gameInitializer.crearPelota(pad);
@@ -283,9 +290,10 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
 
     private void avanzarNivel() {
-        nivel++; // Incrementar el nivel
+        nivel++; // Incrementar nivel
 
         if (nivel > 3) {
+            // Si se completan todos los niveles, mostrar pantalla de victoria
             gameStateManager.setState(GameStateManager.GameState.VICTORY);
             gameMusic.stop();
             victoryMusic.play();
@@ -294,21 +302,13 @@ public class BlockBreakerGame extends ApplicationAdapter {
             gameStateManager.setState(GameStateManager.GameState.TRANSICION_NIVEL);
 
             // Configurar el nuevo nivel
-            int newXSpeed = ball.getXSpeed() + 1; // Incremento para la pelota
-            int newYSpeed = ball.getYSpeed() + 1;
-            ball.setSpeed(newXSpeed, newYSpeed);
+            levelManager.configurarNivel(nivel, gameInitializer, blocks, pad, ball);
 
-            int newPaddleWidth = Math.max(pad.getWidth() - 10, 50); // Reducir el tamaño de la paleta
-            int newPaddleSpeed = pad.getSpeed() + 1; // Incrementar la velocidad
-            pad.setSize(newPaddleWidth, pad.getHeight());
-            pad.setSpeed(newPaddleSpeed);
-
-            // Incrementar filas de bloques
-            gameInitializer.inicializarBloques(2 + nivel, blocks);
-
-            reiniciarBola(); // Reiniciar posición de la bola
+            // Reiniciar la posición de la pelota
+            reiniciarBola();
         }
     }
+
 
 
     private float transicionTime = 0; // Temporizador para la transición

@@ -29,10 +29,10 @@ public class GameInitializer {
     }
 
     public Paddle crearPaleta() {
-        return new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10, 10);
+        return new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
     }
 
     public PingBall crearPelota(Paddle paddle) {
-        return new PingBall(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11, 10, 5, 7, true);
+        return new PingBall(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11, 10);
     }
 }

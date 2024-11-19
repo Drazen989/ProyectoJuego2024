@@ -14,9 +14,7 @@ public class LevelManager {
     }
 
     public void nextLevel() {
-        if (currentLevel < 3) {
-            currentLevel++; // Incrementa el nivel
-        }
+        currentLevel++; // Incrementa el nivel
     }
 
     public void resetLevels() {
@@ -24,19 +22,15 @@ public class LevelManager {
     }
 
     public void configurarNivel(int level, GameInitializer initializer, ArrayList<Block> blocks, Paddle pad, PingBall ball) {
-        int filas = 2 + level; // Incrementa el número de filas
+        // Actualizar configuraciones globales usando el Singleton
+        GameConfigManager.getInstance().updateConfigForLevel(level);
+
+        // Aplicar las configuraciones actualizadas al Paddle y la PingBall
+        pad.applyConfig();
+        ball.applyConfig();
+
+        // Configuración de bloques
+        int filas = 2 + level; // Incrementar el número de filas de bloques
         initializer.inicializarBloques(filas, blocks);
-
-        // Configurar tamaño y velocidad de la paleta
-        int paddleWidth = Math.max(60, 100 - (level * 10)); // Paleta más pequeña con cada nivel
-        int paddleSpeed = 10 + (level * 2); // Incrementar velocidad de la paleta
-
-        pad.setSize(paddleWidth, 10); // Cambia el tamaño
-        pad.setSpeed(paddleSpeed); // Cambia la velocidad
-
-        // Configurar velocidad de la bola
-        int ballSpeedX = 5 + level;
-        int ballSpeedY = 7 + level;
-        ball.setSpeed(ballSpeedX, ballSpeedY);
     }
 }
