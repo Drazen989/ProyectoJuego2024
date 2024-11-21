@@ -4,16 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class PingBall extends GameObject implements Renderable {
+public class PingBall extends GameObject implements Renderable, Collidable, Configurable {
     private int xSpeed, ySpeed;
     private Color color = Color.ORANGE;
     private boolean estaQuieto;
 
     public PingBall(int x, int y, int size) {
         super(x, y, size * 2, size * 2);
-        GameConfigManager config = GameConfigManager.getInstance();
-        this.xSpeed = config.getBallXSpeed(); // Obtener velocidad inicial del Singleton
-        this.ySpeed = config.getBallYSpeed();
+        applyConfig();
         this.estaQuieto = true;
     }
 
@@ -38,12 +36,28 @@ public class PingBall extends GameObject implements Renderable {
         }
     }
 
+    @Override
     public void applyConfig() {
-        // Aplicar nueva configuración al cambiar de nivel
         GameConfigManager config = GameConfigManager.getInstance();
         this.xSpeed = config.getBallXSpeed();
         this.ySpeed = config.getBallYSpeed();
     }
+
+    @Override
+    public void checkCollision(GameObject other) {
+        if (x < other.getX() + other.getWidth() &&
+            x + width > other.getX() &&
+            y < other.getY() + other.getHeight() &&
+            y + height > other.getY()) {
+
+            if (other instanceof Block) {
+                ((Block) other).setDestroyed(true);
+            }
+
+            ySpeed = -ySpeed;
+        }
+    }
+
     public void setXY(int x, int y) {
         this.x = x;
         this.y = y;
@@ -57,29 +71,8 @@ public class PingBall extends GameObject implements Renderable {
         return estaQuieto;
     }
 
-    // Mtodo para verificar colisiones
-    public void checkCollision(GameObject other) {
-        // Lógica básica de colisión usando bounding boxes
-        if (x < other.getX() + other.getWidth() &&
-            x + width > other.getX() &&
-            y < other.getY() + other.getHeight() &&
-            y + height > other.getY()) {
-
-            // Verificar si el objeto es un bloque
-            if (other instanceof Block) {
-                Block block = (Block) other;
-                block.setDestroyed(true); // Marcar el bloque como destruido
-            }
-
-            // Invertir la dirección vertical al colisionar
-            ySpeed = -ySpeed;
-        }
-    }
-
     @Override
     public boolean isStill() {
-        return estaQuieto; // Retorna true si la pelota está quieta
+        return estaQuieto;
     }
-
-
 }

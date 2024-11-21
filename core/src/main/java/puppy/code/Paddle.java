@@ -5,14 +5,14 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Paddle extends GameObject implements Renderable {
+public class Paddle extends GameObject implements Renderable, Configurable {
     private int speed;
     private Color color;
     private boolean moving;
 
     public Paddle(int x, int y, int width, int height) {
         super(x, y, width, height);
-        this.speed = GameConfigManager.getInstance().getPaddleSpeed(); // Obtener velocidad inicial del Singleton
+        applyConfig();
         this.color = Color.PURPLE;
         this.moving = false;
     }
@@ -41,14 +41,14 @@ public class Paddle extends GameObject implements Renderable {
     }
 
     @Override
-    public boolean isStill() {
-        return !moving;
-    }
-
     public void applyConfig() {
-        // Aplicar nueva configuración al cambiar de nivel
         GameConfigManager config = GameConfigManager.getInstance();
         this.speed = config.getPaddleSpeed();
         this.width = config.getPaddleWidth();
+    }
+
+    @Override
+    public boolean isStill() {
+        return !moving;
     }
 }

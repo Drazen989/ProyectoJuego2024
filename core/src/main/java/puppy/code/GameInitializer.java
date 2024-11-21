@@ -5,10 +5,6 @@ import com.badlogic.gdx.Gdx;
 import java.util.ArrayList;
 
 public class GameInitializer {
-
-
-
-
     private ArrayList<Block> blocks;
 
     public GameInitializer() {
@@ -34,5 +30,9 @@ public class GameInitializer {
 
     public PingBall crearPelota(Paddle paddle) {
         return new PingBall(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11, 10);
+    }
+
+    public ArrayList<Block> getBlocks() {
+        return blocks;
     }
 }
