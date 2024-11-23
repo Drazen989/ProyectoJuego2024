@@ -1,7 +1,5 @@
 package puppy.code;
 
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-
 public abstract class GameObject {
     protected int x, y, width, height;
 
@@ -12,13 +10,29 @@ public abstract class GameObject {
         this.height = height;
     }
 
-    public abstract void draw(ShapeRenderer shape);
-    public abstract void update();
+    // Template Method
+    public final void updateGameObject() {
+        preUpdate();
+        update();
+        postUpdate();
+    }
 
+    // Este método es común a todas las clases, no se modifica
+    protected void preUpdate() {
+        // Código común si es necesario antes de cada actualización
+    }
+
+    // Método abstracto que las subclases implementan
+    protected abstract void update();
+
+    // Este método es común a todas las clases, no se modifica
+    protected void postUpdate() {
+        // Código común si es necesario después de cada actualización
+    }
+
+    // Métodos Getters y Setters...
     public int getX() { return x; }
     public int getY() { return y; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
-
-    public abstract boolean isStill();
 }

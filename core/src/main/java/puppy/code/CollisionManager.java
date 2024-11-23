@@ -1,4 +1,5 @@
 package puppy.code;
+
 import java.util.List;
 
 public class CollisionManager {

@@ -208,16 +208,18 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
     private void mostrarPausa() {
         pauseMenu.showPauseMenu();
-        int opcion = pauseMenu.handleInput();
-        if (opcion == 1) {
+
+        // Manejo de entrada directamente en BlockBreakerGame
+        if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_1)) {
             gameStateManager.setState(GameStateManager.GameState.JUGANDO);
-        } else if (opcion == 2) {
-            gameMusic.stop(); // Detén la música del juego
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_2)) {
+            gameMusic.stop();
             reiniciarAlMenu();
-        } else if (opcion == 3) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.NUM_3)) {
             Gdx.app.exit();
         }
     }
+
 
     private void actualizarJuego() {
         shape.setProjectionMatrix(camera.combined);
