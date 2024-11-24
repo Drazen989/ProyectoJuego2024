@@ -4,58 +4,63 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class PingBall extends GameObject implements Renderable, Collidable, Configurable {
-    private int xSpeed, ySpeed;
-    private Color color = Color.ORANGE;
-    private boolean estaQuieto;
+public class PingBall extends GameObject implements Renderable, Collidable {
+    private int xSpeed, ySpeed; // Velocidad en X y Y
+    private Color color = Color.ORANGE; // Color de la pelota
+    private boolean estaQuieto; // Indica si la pelota está quieta
 
     public PingBall(int x, int y, int size) {
-        super(x, y, size * 2, size * 2);
-        applyConfig();
-        this.estaQuieto = true;
+        super(x, y, size, size); // Inicializa la posición y el tamaño
+        this.xSpeed = 4; // Velocidad inicial en X
+        this.ySpeed = -4; // Velocidad inicial en Y
+        this.estaQuieto = true; // La pelota comienza quieta
     }
 
     @Override
     public void draw(ShapeRenderer shape) {
         shape.setColor(color);
-        shape.circle(x, y, width / 2);
+        shape.circle(x + width / 2, y + height / 2, width / 2); // Dibuja la pelota como un círculo
     }
 
     @Override
     public void update() {
-        if (estaQuieto) return;
+        if (estaQuieto) return; // Si la pelota está quieta, no se mueve
 
+        // Actualizar posición
         x += xSpeed;
         y += ySpeed;
 
-        if (x - width / 2 < 0 || x + width / 2 > Gdx.graphics.getWidth()) {
-            xSpeed = -xSpeed;
+        // Rebote en los bordes de la pantalla
+        if (x < 0 || x + width > Gdx.graphics.getWidth()) {
+            xSpeed = -xSpeed; // Cambia la dirección en X
         }
-        if (y + height / 2 > Gdx.graphics.getHeight()) {
-            ySpeed = -ySpeed;
+        if (y + height > Gdx.graphics.getHeight()) {
+            ySpeed = -ySpeed; // Cambia la dirección en Y
         }
     }
 
     @Override
-    public void applyConfig() {
-        GameConfigManager config = GameConfigManager.getInstance();
-        this.xSpeed = config.getBallXSpeed();
-        this.ySpeed = config.getBallYSpeed();
-    }
-
-    @Override
-    public void checkCollision(GameObject other) {
-        if (x < other.getX() + other.getWidth() &&
+    public boolean checkCollision(GameObject other) {
+        // Detecta colisiones con otro objeto
+        boolean collision = x < other.getX() + other.getWidth() &&
             x + width > other.getX() &&
             y < other.getY() + other.getHeight() &&
-            y + height > other.getY()) {
+            y + height > other.getY();
 
-            if (other instanceof Block) {
-                ((Block) other).setDestroyed(true);
-            }
-
-            ySpeed = -ySpeed;
+        if (collision && other instanceof Paddle) {
+            bounceVertical(); // Rebota verticalmente si colisiona con la paleta
+        } else if (collision && other instanceof Block) {
+            bounceVertical(); // Rebota verticalmente si colisiona con un bloque
         }
+        return collision;
+    }
+
+    public void bounceVertical() {
+        this.ySpeed = -this.ySpeed; // Cambia la dirección vertical
+    }
+
+    public void bounceHorizontal() {
+        this.xSpeed = -this.xSpeed; // Cambia la dirección horizontal
     }
 
     public void setXY(int x, int y) {
@@ -73,6 +78,6 @@ public class PingBall extends GameObject implements Renderable, Collidable, Conf
 
     @Override
     public boolean isStill() {
-        return estaQuieto;
+        return estaQuieto; // Indica si la pelota está quieta
     }
 }

@@ -1,43 +1,54 @@
 package puppy.code;
 
-import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import java.util.Random;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Block extends GameObject implements Renderable {
-    private Color cc;
+    private CollisionStrategy collisionStrategy;
+    private Texture texture;
     private boolean destroyed;
 
-    public Block(int x, int y, int width, int height) {
+    public Block(int x, int y, int width, int height, CollisionStrategy strategy, Texture texture) {
         super(x, y, width, height);
-        destroyed = false;
-        Random r = new Random(x + y);
-        cc = new Color(0.1f + r.nextFloat(1), r.nextFloat(1), r.nextFloat(1), 1);
+        this.collisionStrategy = strategy;
+        this.texture = texture;
+        this.destroyed = false;
     }
 
     @Override
     public void draw(ShapeRenderer shape) {
-        if (!destroyed) {
-            shape.setColor(cc);
-            shape.rect(x, y, width, height);
+        if (!destroyed && texture != null) {
+            SpriteBatch batch = new SpriteBatch();
+            batch.begin();
+            batch.draw(texture, x, y, width, height);
+            batch.end();
+            batch.dispose();
         }
     }
 
     @Override
     public void update() {
-        // No necesita actualización en cada frame
-    }
-
-    public boolean isDestroyed() {
-        return destroyed;  // Mtodo para verificar si el bloque está destruido
-    }
-
-    public void setDestroyed(boolean destroyed) {
-        this.destroyed = destroyed;  // Mtodo para cambiar el estado de destruido
+        // No se requiere lógica de actualización para los bloques
     }
 
     @Override
     public boolean isStill() {
-        return !destroyed;  // Retorna true si el bloque no está destruido
+        return true; // Los bloques siempre están "quietos"
+    }
+
+    public void onCollision(PingBall ball, LevelManager levelManager) {
+        if (collisionStrategy != null) {
+            collisionStrategy.handleCollision(this, ball, levelManager);
+        }
+        setDestroyed(true);
+    }
+
+    public void setDestroyed(boolean destroyed) {
+        this.destroyed = destroyed;
+    }
+
+    public boolean isDestroyed() {
+        return destroyed;
     }
 }

@@ -1,38 +1,36 @@
 package puppy.code;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class GameInitializer {
-    private ArrayList<Block> blocks;
+    public void inicializarBloques(List<Block> blocks, Texture normal, Texture resistant, Texture explosive) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 10; j++) {
+                int x = j * 80;
+                int y = 400 - i * 40;
+                CollisionStrategy strategy;
 
-    public GameInitializer() {
-        blocks = new ArrayList<>();
-    }
-
-    public void inicializarBloques(int filas, ArrayList<Block> blocks) {
-        blocks.clear();
-        int blockWidth = 70;
-        int blockHeight = 26;
-        int y = Gdx.graphics.getHeight();
-        for (int cont = 0; cont < filas; cont++) {
-            y -= blockHeight + 10;
-            for (int x = 5; x < Gdx.graphics.getWidth(); x += blockWidth + 10) {
-                blocks.add(new Block(x, y, blockWidth, blockHeight));
+                if (i % 3 == 0) {
+                    strategy = new NormalBlockCollision();
+                    blocks.add(new Block(x, y, 80, 40, strategy, normal));
+                } else if (i % 3 == 1) {
+                    strategy = new ResistantBlockCollision();
+                    blocks.add(new Block(x, y, 80, 40, strategy, resistant));
+                } else {
+                    strategy = new ExplosiveBlockCollision();
+                    blocks.add(new Block(x, y, 80, 40, strategy, explosive));
+                }
             }
         }
     }
 
     public Paddle crearPaleta() {
-        return new Paddle(Gdx.graphics.getWidth() / 2 - 50, 40, 100, 10);
+        return new Paddle(360, 20, 80, 20);
     }
 
     public PingBall crearPelota(Paddle paddle) {
-        return new PingBall(paddle.getX() + paddle.getWidth() / 2 - 5, paddle.getY() + paddle.getHeight() + 11, 10);
-    }
-
-    public ArrayList<Block> getBlocks() {
-        return blocks;
+        return new PingBall(paddle.getX() + paddle.getWidth() / 2 - 10, paddle.getY() + paddle.getHeight() + 10, 20);
     }
 }

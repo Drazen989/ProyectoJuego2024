@@ -1,36 +1,32 @@
 package puppy.code;
 
-import java.util.ArrayList;
+import com.badlogic.gdx.graphics.Texture;
+
+import java.util.List;
 
 public class LevelManager {
-    private int currentLevel;
+    private Texture normalTexture;
+    private Texture resistantTexture;
+    private Texture explosiveTexture;
 
-    public LevelManager() {
-        this.currentLevel = 1; // Comienza en el nivel 1
+    public void initializeTextures() {
+        normalTexture = new Texture("assets/block7.jpeg");
+        resistantTexture = new Texture("assets/block8.jpeg");
+        explosiveTexture = new Texture("assets/block1.jpeg");
     }
 
-    public int getCurrentLevel() {
-        return currentLevel;
+    public void configurarNivel(int nivel, GameInitializer gameInitializer, List<Block> blocks, Paddle pad, PingBall ball) {
+        // Configurar bloques en la pantalla según el nivel.
+        gameInitializer.inicializarBloques(blocks, normalTexture, resistantTexture, explosiveTexture);
     }
 
-    public void nextLevel() {
-        currentLevel++; // Incrementa el nivel
+    public void disposeTextures() {
+        if (normalTexture != null) normalTexture.dispose();
+        if (resistantTexture != null) resistantTexture.dispose();
+        if (explosiveTexture != null) explosiveTexture.dispose();
     }
 
-    public void resetLevels() {
-        currentLevel = 1; // Reinicia los niveles
-    }
-
-    public void configurarNivel(int level, GameInitializer initializer, ArrayList<Block> blocks, Paddle pad, PingBall ball) {
-        // Actualizar configuraciones globales usando el Singleton
-        GameConfigManager.getInstance().updateConfigForLevel(level);
-
-        // Aplicar las configuraciones actualizadas al Paddle y la PingBall
-        pad.applyConfig();
-        ball.applyConfig();
-
-        // Configuración de bloques
-        int filas = 2 + level; // Incrementar el número de filas de bloques
-        initializer.inicializarBloques(filas, blocks);
+    public void triggerExplosion(Block block) {
+        // Implementar lógica de explosión.
     }
 }

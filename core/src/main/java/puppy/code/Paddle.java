@@ -5,50 +5,31 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class Paddle extends GameObject implements Renderable, Configurable {
+public class Paddle extends GameObject implements Renderable {
     private int speed;
-    private Color color;
-    private boolean moving;
 
     public Paddle(int x, int y, int width, int height) {
         super(x, y, width, height);
-        applyConfig();
-        this.color = Color.PURPLE;
-        this.moving = false;
+        this.speed = 5;
     }
 
     @Override
     public void draw(ShapeRenderer shape) {
-        shape.setColor(color);
+        shape.setColor(Color.BLUE);
         shape.rect(x, y, width, height);
     }
 
-    @Override
     public void update() {
-        moving = false;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && x > 0) {
             x -= speed;
-            moving = true;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && x + width < Gdx.graphics.getWidth()) {
             x += speed;
-            moving = true;
         }
-
-        if (x < 0) x = 0;
-        if (x + width > Gdx.graphics.getWidth()) x = Gdx.graphics.getWidth() - width;
     }
-
-    @Override
-    public void applyConfig() {
-        GameConfigManager config = GameConfigManager.getInstance();
-        this.speed = config.getPaddleSpeed();
-        this.width = config.getPaddleWidth();
-    }
-
     @Override
     public boolean isStill() {
-        return !moving;
+        return false; // La paleta nunca está "quieta"
     }
+
 }
