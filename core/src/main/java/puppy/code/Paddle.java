@@ -8,9 +8,10 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 public class Paddle extends GameObject implements Renderable {
     private int speed;
 
+
     public Paddle(int x, int y, int width, int height) {
         super(x, y, width, height);
-        this.speed = 5;
+        this.speed = 10;
     }
 
     @Override
@@ -20,13 +21,15 @@ public class Paddle extends GameObject implements Renderable {
     }
 
     public void update() {
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && x > 0) {
-            x -= speed;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            x -= speed; // Mover a la izquierda
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && x + width < Gdx.graphics.getWidth()) {
-            x += speed;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            x += speed; // Mover a la derecha
         }
     }
+
+
     @Override
     public boolean isStill() {
         return false; // La paleta nunca está "quieta"

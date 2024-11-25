@@ -8,12 +8,14 @@ public class Block extends GameObject implements Renderable {
     private CollisionStrategy collisionStrategy;
     private Texture texture;
     private boolean destroyed;
+    private int durability;
 
-    public Block(int x, int y, int width, int height, CollisionStrategy strategy, Texture texture) {
+    public Block(int x, int y, int width, int height, CollisionStrategy strategy, Texture texture, int durability) {
         super(x, y, width, height);
         this.collisionStrategy = strategy;
         this.texture = texture;
         this.destroyed = false;
+        this.durability = durability;
     }
 
     @Override
@@ -41,7 +43,7 @@ public class Block extends GameObject implements Renderable {
         if (collisionStrategy != null) {
             collisionStrategy.handleCollision(this, ball, levelManager);
         }
-        setDestroyed(true);
+        //setDestroyed(true);
     }
 
     public void setDestroyed(boolean destroyed) {
@@ -50,5 +52,13 @@ public class Block extends GameObject implements Renderable {
 
     public boolean isDestroyed() {
         return destroyed;
+    }
+
+    public int getDurability() {
+        return durability;
+    }
+
+    public void setDurability(int durability) {
+        this.durability = durability;
     }
 }

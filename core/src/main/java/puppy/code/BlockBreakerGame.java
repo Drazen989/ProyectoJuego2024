@@ -49,7 +49,12 @@ public class BlockBreakerGame extends ApplicationAdapter {
         shape = new ShapeRenderer();
 
         gameInitializer = new GameInitializer();
-        levelManager = new LevelManager();
+
+        // Inicializar la lista de bloques antes de crear LevelManager
+        blocks = new ArrayList<>();
+
+        // Ahora pasamos la lista de bloques al constructor de LevelManager
+        levelManager = new LevelManager(blocks);
         levelManager.initializeTextures();
 
         menuBackground = new Texture(Gdx.files.internal("image.png"));
@@ -58,19 +63,22 @@ public class BlockBreakerGame extends ApplicationAdapter {
 
         menuMusic = Gdx.audio.newMusic(Gdx.files.internal("Start Demo - Arkanoid.mp3"));
         menuMusic.setLooping(true);
-        menuMusic.play();
+    // ----------
+        //menuMusic.play();
 
         gameMusic = Gdx.audio.newMusic(Gdx.files.internal("Music Arkanoid Win32 - Track1.mp3"));
         gameMusic.setLooping(true);
 
         gameOverMusic = Gdx.audio.newMusic(Gdx.files.internal("Game Over - Arkanoid.mp3"));
 
-        blocks = new ArrayList<>();
         vidas = 3;
         nivel = 1;
 
         gameState = GameState.MENU;
+        pad = gameInitializer.crearPaleta();
+        ball = gameInitializer.crearPelota(pad);
     }
+
 
     @Override
     public void render() {
@@ -128,18 +136,18 @@ public class BlockBreakerGame extends ApplicationAdapter {
     }
 
     private void renderGame() {
+        pad.update();
+        ball.update();
+
         shape.setProjectionMatrix(camera.combined);
         shape.begin(ShapeRenderer.ShapeType.Filled);
+
+        pad.draw(shape);
+        ball.draw(shape);
 
         for (Block block : blocks) {
             block.draw(shape);
         }
-
-        ball.draw(shape);
-        ball.update();
-
-        pad.draw(shape);
-        pad.update();
 
         shape.end();
 
@@ -149,6 +157,7 @@ public class BlockBreakerGame extends ApplicationAdapter {
         batch.end();
 
         verificarColisiones();
+
     }
 
     private void verificarColisiones() {
@@ -156,13 +165,13 @@ public class BlockBreakerGame extends ApplicationAdapter {
             ball.bounceVertical();
         }
 
-        for (int i = blocks.size() - 1; i >= 0; i--) {
-            Block block = blocks.get(i);
-            if (ball.checkCollision(block)) {
+        for (Block block : blocks) {
+            if (!block.isDestroyed() && ball.checkCollision(block)) {
                 block.onCollision(ball, levelManager);
-                blocks.remove(i);
+                ball.bounceVertical(); // Asegúrate de que la pelota rebote
             }
         }
+        blocks.removeIf(Block::isDestroyed);
 
         if (ball.getY() < 0) {
             vidas--;
@@ -187,22 +196,25 @@ public class BlockBreakerGame extends ApplicationAdapter {
     }
 
     private void reiniciarNivel() {
-        blocks.clear();
-        levelManager.configurarNivel(nivel, gameInitializer, blocks, pad, ball);
+        levelManager.configurarNivel(nivel, gameInitializer, pad, ball);
         reiniciarPelota();
     }
 
     private void reiniciarPelota() {
-        ball.setXY(pad.getX() + pad.getWidth() / 2 - ball.getWidth() / 2, pad.getY() + pad.getHeight() + 5);
-        ball.setEstaQuieto(true);
+        ball.adjuntarAPaleta();
     }
 
     private void iniciarJuego() {
         gameState = GameState.JUGANDO;
         vidas = 3;
         nivel = 1;
+
+        pad = gameInitializer.crearPaleta();
+        ball = gameInitializer.crearPelota(pad);
         reiniciarNivel();
-        gameMusic.play();
+
+        menuMusic.stop();
+        //gameMusic.play();
     }
 
     private void renderGameOver() {

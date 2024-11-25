@@ -8,12 +8,16 @@ public class PingBall extends GameObject implements Renderable, Collidable {
     private int xSpeed, ySpeed; // Velocidad en X y Y
     private Color color = Color.ORANGE; // Color de la pelota
     private boolean estaQuieto; // Indica si la pelota está quieta
+    private boolean adjuntoAPaleta;
+    private Paddle paleta;
 
-    public PingBall(int x, int y, int size) {
+    public PingBall(int x, int y, int size, Paddle paleta) {
         super(x, y, size, size); // Inicializa la posición y el tamaño
         this.xSpeed = 4; // Velocidad inicial en X
         this.ySpeed = -4; // Velocidad inicial en Y
         this.estaQuieto = true; // La pelota comienza quieta
+        this.adjuntoAPaleta = true;
+        this.paleta = paleta;
     }
 
     @Override
@@ -24,6 +28,12 @@ public class PingBall extends GameObject implements Renderable, Collidable {
 
     @Override
     public void update() {
+        if (adjuntoAPaleta) {
+            x = paleta.getX() + paleta.getWidth() / 2 - width / 2;
+            y = paleta.getY() + paleta.getHeight();
+            return;
+        }
+
         if (estaQuieto) return; // Si la pelota está quieta, no se mueve
 
         // Actualizar posición
@@ -38,6 +48,19 @@ public class PingBall extends GameObject implements Renderable, Collidable {
             ySpeed = -ySpeed; // Cambia la dirección en Y
         }
     }
+
+    public void liberar() {
+        if (adjuntoAPaleta) {
+            adjuntoAPaleta = false;
+            estaQuieto = false;
+        }
+    }
+
+    public void adjuntarAPaleta() {
+        adjuntoAPaleta = true;
+        estaQuieto = true;
+    }
+
 
     @Override
     public boolean checkCollision(GameObject other) {

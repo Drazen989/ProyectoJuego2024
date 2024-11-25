@@ -11,26 +11,31 @@ public class GameInitializer {
                 int x = j * 80;
                 int y = 400 - i * 40;
                 CollisionStrategy strategy;
+                int durability = 1; // Durabilidad por defecto
 
                 if (i % 3 == 0) {
                     strategy = new NormalBlockCollision();
-                    blocks.add(new Block(x, y, 80, 40, strategy, normal));
+                    blocks.add(new Block(x, y, 80, 40, strategy, normal, durability));
                 } else if (i % 3 == 1) {
                     strategy = new ResistantBlockCollision();
-                    blocks.add(new Block(x, y, 80, 40, strategy, resistant));
+                    durability = 2; // Durabilidad para bloques resistentes
+                    blocks.add(new Block(x, y, 80, 40, strategy, resistant, durability));
                 } else {
                     strategy = new ExplosiveBlockCollision();
-                    blocks.add(new Block(x, y, 80, 40, strategy, explosive));
+                    blocks.add(new Block(x, y, 80, 40, strategy, explosive, durability));
                 }
             }
         }
     }
 
+
     public Paddle crearPaleta() {
-        return new Paddle(360, 20, 80, 20);
+        return new Paddle(360, 30, 110, 10);
     }
 
     public PingBall crearPelota(Paddle paddle) {
-        return new PingBall(paddle.getX() + paddle.getWidth() / 2 - 10, paddle.getY() + paddle.getHeight() + 10, 20);
+        int x = paddle.getX() + paddle.getWidth() / 2 - 10;
+        int y = paddle.getY() + paddle.getHeight();
+        return new PingBall(x, y, 20, paddle);
     }
 }
