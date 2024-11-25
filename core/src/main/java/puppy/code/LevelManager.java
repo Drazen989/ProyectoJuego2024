@@ -1,32 +1,50 @@
+// LevelManager.java
 package puppy.code;
 
-import com.badlogic.gdx.graphics.Texture;
-
-import java.util.List;
+import java.util.ArrayList;
 
 public class LevelManager {
-    private Texture normalTexture;
-    private Texture resistantTexture;
-    private Texture explosiveTexture;
+    private int currentLevel;
 
-    public void initializeTextures() {
-        normalTexture = new Texture("assets/block7.jpeg");
-        resistantTexture = new Texture("assets/block8.jpeg");
-        explosiveTexture = new Texture("assets/block1.jpeg");
+    public LevelManager() {
+        this.currentLevel = 1;
     }
 
-    public void configurarNivel(int nivel, GameInitializer gameInitializer, List<Block> blocks, Paddle pad, PingBall ball) {
-        // Configurar bloques en la pantalla según el nivel.
-        gameInitializer.inicializarBloques(blocks, normalTexture, resistantTexture, explosiveTexture);
+    public int getCurrentLevel() {
+        return currentLevel;
     }
 
-    public void disposeTextures() {
-        if (normalTexture != null) normalTexture.dispose();
-        if (resistantTexture != null) resistantTexture.dispose();
-        if (explosiveTexture != null) explosiveTexture.dispose();
+    public void nextLevel() {
+        currentLevel++;
     }
 
-    public void triggerExplosion(Block block) {
-        // Implementar lógica de explosión.
+    public void resetLevels() {
+        currentLevel = 1;
+    }
+
+    public void configurarNivel(int level, GameInitializer initializer, ArrayList<IBlock> blocks, IPaddle pad, IPingBall ball) {
+        GameConfigManager.getInstance().updateConfigForLevel(level);
+        pad.applyConfig();
+        ball.applyConfig();
+
+        // Configuración de bloques
+        int filas = 2 + level;
+        initializer.inicializarBloques(filas, blocks);
+
+        // Cambiar la estrategia de rebote según el nivel
+        switch (level) {
+            case 1:
+                ball.setBounceStrategy(new NormalBounceStrategy());
+                break;
+            case 2:
+                ball.setBounceStrategy(new RandomBounceStrategy());
+                break;
+            case 3:
+                ball.setBounceStrategy(new AcceleratedBounceStrategy());
+                break;
+            default:
+                ball.setBounceStrategy(new NormalBounceStrategy());
+                break;
+        }
     }
 }

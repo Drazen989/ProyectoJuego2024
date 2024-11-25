@@ -1,7 +1,8 @@
 package puppy.code;
 
 public abstract class GameObject {
-    protected int x, y, width, height;
+    protected int x, y;
+    protected int width, height;
 
     public GameObject(int x, int y, int width, int height) {
         this.x = x;
@@ -10,29 +11,31 @@ public abstract class GameObject {
         this.height = height;
     }
 
-    // Template Method
-    public final void updateGameObject() {
-        preUpdate();
-        update();
-        postUpdate();
+    public abstract void update();
+
+    // Getters y setters
+    public int getX() {
+        return x;
     }
 
-    // Este método es común a todas las clases, no se modifica
-    protected void preUpdate() {
-        // Código común si es necesario antes de cada actualización
+    public void setX(int x) {
+        this.x = x;
     }
 
-    // Método abstracto que las subclases implementan
-    protected abstract void update();
-
-    // Este método es común a todas las clases, no se modifica
-    protected void postUpdate() {
-        // Código común si es necesario después de cada actualización
+    // Similar para y, width, height
+    public int getY() {
+        return y;
     }
 
-    // Métodos Getters y Setters...
-    public int getX() { return x; }
-    public int getY() { return y; }
-    public int getWidth() { return width; }
-    public int getHeight() { return height; }
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
 }

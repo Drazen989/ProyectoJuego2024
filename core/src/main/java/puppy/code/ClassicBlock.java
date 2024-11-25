@@ -1,38 +1,39 @@
+// ClassicBlock.java
 package puppy.code;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import java.util.Random;
 
-public class Block extends GameObject implements Renderable {
-    private Color cc;
+public class ClassicBlock extends GameObject implements IBlock {
+    private Color color;
     private boolean destroyed;
 
-    public Block(int x, int y, int width, int height) {
+    public ClassicBlock(int x, int y, int width, int height) {
         super(x, y, width, height);
-        destroyed = false;
-        Random r = new Random(x + y);
-        cc = new Color(0.1f + r.nextFloat(), r.nextFloat(), r.nextFloat(), 1);
+        this.destroyed = false;
+        this.color = Color.BLUE; // Color específico para el tema clásico
     }
 
     @Override
     public void draw(ShapeRenderer shape) {
         if (!destroyed) {
-            shape.setColor(cc);
+            shape.setColor(color);
             shape.rect(x, y, width, height);
         }
     }
 
     @Override
     public void update() {
-        // No necesita actualización en cada frame
+        // No necesita lógica de actualización
     }
 
-    public boolean isDestroyed() {
-        return destroyed;
-    }
-
+    @Override
     public void setDestroyed(boolean destroyed) {
         this.destroyed = destroyed;
+    }
+
+    @Override
+    public boolean isDestroyed() {
+        return destroyed;
     }
 }

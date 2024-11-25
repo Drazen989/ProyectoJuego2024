@@ -1,20 +1,21 @@
+// ClassicPingBall.java
 package puppy.code;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 
-public class PingBall extends GameObject implements Renderable, Collidable, Configurable, IPingBall {
+public class ClassicPingBall extends GameObject implements IPingBall {
     private int xSpeed, ySpeed;
     private Color color = Color.ORANGE;
     private boolean estaQuieto;
-    private BounceStrategy bounceStrategy; // Estrategia de rebote
+    private BounceStrategy bounceStrategy;
 
-    public PingBall(int x, int y, int size) {
+    public ClassicPingBall(int x, int y, int size) {
         super(x, y, size * 2, size * 2);
         applyConfig();
         this.estaQuieto = true;
-        this.bounceStrategy = new NormalBounceStrategy(); // Estrategia por defecto
+        this.bounceStrategy = new NormalBounceStrategy();
     }
 
     @Override
@@ -52,61 +53,62 @@ public class PingBall extends GameObject implements Renderable, Collidable, Conf
             y < other.getY() + other.getHeight() &&
             y + height > other.getY()) {
 
-            if (other instanceof Block) {
-                ((Block) other).setDestroyed(true);
+            if (other instanceof IBlock) {
+                ((IBlock) other).setDestroyed(true);
             }
 
-            if (other instanceof Item) {
-                // Cambiar estrategia de rebote al recoger el ítem
-                this.setBounceStrategy(((Item) other).getBounceStrategy());
+            if (other instanceof IItem) {
+                this.setBounceStrategy(((IItem) other).getBounceStrategy());
                 // Aquí podrías eliminar el ítem del juego si es necesario
-                // items.remove(other); // Si tienes acceso a la lista de items
             }
 
-            // Utilizar la estrategia de rebote
             bounceStrategy.bounce(this, other);
         }
     }
 
-    // Getters y Setters para xSpeed y ySpeed
+    @Override
     public int getXSpeed() {
         return xSpeed;
     }
 
+    @Override
     public void setXSpeed(int xSpeed) {
         this.xSpeed = xSpeed;
     }
 
+    @Override
     public int getYSpeed() {
         return ySpeed;
     }
 
+    @Override
     public void setYSpeed(int ySpeed) {
         this.ySpeed = ySpeed;
     }
 
+    @Override
     public void setBounceStrategy(BounceStrategy bounceStrategy) {
         this.bounceStrategy = bounceStrategy;
     }
 
+    @Override
     public BounceStrategy getBounceStrategy() {
         return bounceStrategy;
     }
 
+    @Override
     public void setXY(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
+    @Override
     public void setEstaQuieto(boolean estaQuieto) {
         this.estaQuieto = estaQuieto;
     }
 
+    @Override
     public boolean estaQuieto() {
-        return estaQuieto;
-    }
-
-    public boolean isStill() {
         return estaQuieto;
     }
 }

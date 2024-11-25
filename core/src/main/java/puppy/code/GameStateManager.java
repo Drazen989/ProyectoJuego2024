@@ -1,7 +1,5 @@
 package puppy.code;
 
-import java.security.PublicKey;
-
 public class GameStateManager {
 
     // Enum que define los estados posibles del juego
@@ -54,12 +52,11 @@ public class GameStateManager {
         return currentState == GameState.GAME_OVER;
     }
 
-    public boolean isVictory(){
+    public boolean isVictory() {
         return currentState == GameState.VICTORY;
     }
 
-    public boolean isTRANCISION_LEVEL(){
+    public boolean isTransicionNivel() {
         return currentState == GameState.TRANSICION_NIVEL;
     }
-
 }

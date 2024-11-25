@@ -1,7 +1,6 @@
 package puppy.code;
 
 public class GameConfigManager {
-
     private static GameConfigManager instance;
 
     private int paddleSpeed = 10;
@@ -10,8 +9,7 @@ public class GameConfigManager {
     private int ballXSpeed = 5;
     private int ballYSpeed = 7;
 
-    private GameConfigManager() {
-    }
+    private GameConfigManager() {}
 
     public static GameConfigManager getInstance() {
         if (instance == null) {

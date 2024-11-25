@@ -11,11 +11,16 @@ public class PauseMenu {
 
     public PauseMenu(SpriteBatch batch, BitmapFont font) {
         this.batch = batch;
-        this.font = new BitmapFont();
+        this.font = font;
     }
 
     public void showPauseMenu() {
-        font.draw(batch, "Press P to Resume", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2);
+        batch.begin();
+        font.draw(batch, "Juego en Pausa", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2 + 50);
+        font.draw(batch, "1. Reanudar Juego", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2);
+        font.draw(batch, "2. Volver al Menú Principal", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2 - 50);
+        font.draw(batch, "3. Salir del Juego", Gdx.graphics.getWidth() / 2 - 50, Gdx.graphics.getHeight() / 2 - 100);
+        batch.end();
     }
 
     public boolean isPaused() {
